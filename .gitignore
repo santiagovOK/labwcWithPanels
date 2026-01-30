@@ -1,2 +1,7 @@
 # Ignore log files
 *.log
+# --- Agents Rules & Context ---
+AGENTS.md
+AGENTS-*.md
+skills/
+**/*AGENTS-*.md
