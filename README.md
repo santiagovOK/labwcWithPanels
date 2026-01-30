@@ -1,37 +1,40 @@
 # Debian 13 (Trixie) Minimal Setup: Labwc + Waybar
 
-This will be a Bash orchestration script to automate the installation of a minimal Wayland environment using **Labwc** (Compositor) and **Waybar** (Status Bar) on Debian 13.
+This is a Bash orchestration script to automate the installation of a minimal Wayland environment using **Labwc** (Compositor) and **Waybar** (Status Bar) on Debian 13.
 
 ---
 
-## Quick Start (not finished yet...)
+## Quick Start
+
+### 1. Recommended Installation (via curl)
+
+Run the following command to download and start the setup automatically:
+
+```bash
+curl -sL https://raw.githubusercontent.com/santiagovOK/labwc_waybar_setup/main/install.sh | bash
+```
+
+### 2. Manual Installation
+
+If you prefer to clone the repository manually:
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/santiagovOK/labwc_waybar_setup.git
+    cd labwc_waybar_setup
+    ```
+
+2.  **Run the Orchestrator:**
+    ```bash
+    chmod +x main.sh
+    sudo ./main.sh
+    ```
 
 ### Prerequisites
 
-  * **OS:** Debian 13 "Trixie" (Stable)
-  * **User:** Must be run as `root` (or via `sudo`).
-  * **Internet:** Active connection required for `apt` and `git`.
-
-### Installation
-
-1.  **Clone the repository:**
-
-    ```bash
-    git clone [https://github.com/yourusername/debian-labwc-setup.git](https://github.com/yourusername/debian-labwc-setup.git)
-    cd debian-labwc-setup
-    ```
-
-2.  **Make the script executable:**
-
-    ```bash
-    chmod +x main.sh
-    ```
-
-3.  **Run the Orchestrator:**
-
-    ```bash
-    sudo ./main.sh
-    ```
+* **OS:** Debian 13 "Trixie" (Testing/Testing-based)
+* **User:** A user with `sudo` privileges.
+* **Internet:** Active connection required.
 
 -----
 
