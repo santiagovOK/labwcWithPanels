@@ -6,6 +6,7 @@
 LIB_PATH="lib/utils.sh"
 if [[ ! -f "$LIB_PATH" && -f "../$LIB_PATH" ]]; then cd ..; fi
 if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit 1; fi
+# shellcheck source=../lib/utils.sh
 source "$LIB_PATH"
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
 

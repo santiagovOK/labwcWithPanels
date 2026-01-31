@@ -5,7 +5,8 @@
 # ==============================================================================
 # 1. CONSTANTS & COLORS
 # ==============================================================================
-readonly LOG_FILE="logs/install_$(date +%Y-%m-%d).log"
+LOG_FILE="logs/install_$(date +%Y-%m-%d).log"
+readonly LOG_FILE
 readonly R='\033[0;31m'   # Red (Error)
 readonly G='\033[0;32m'   # Green (Success)
 readonly Y='\033[0;33m'   # Yellow (Warning)

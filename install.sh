@@ -10,6 +10,7 @@ INSTALL_DIR="$HOME/labwc_installer"
 
 # Colors
 R='\033[0;31m'
+# shellcheck disable=SC2034
 G='\033[0;32m'
 B='\033[0;34m'
 N='\033[0m'

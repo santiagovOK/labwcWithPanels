@@ -25,6 +25,7 @@ if [[ ! -f "$LIB_PATH" ]]; then
     exit 1
 fi
 
+# shellcheck source=lib/utils.sh
 source "$LIB_PATH"
 
 # ==============================================================================
