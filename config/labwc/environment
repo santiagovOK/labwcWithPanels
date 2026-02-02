@@ -1,7 +1,7 @@
 # Keyboard layout
 XKB_DEFAULT_LAYOUT=es
 XKB_DEFAULT_VARIANT=winkeys
-XKB_DEFAULT_OPTIONS=grp:alt_shift_toggle
+#XKB_DEFAULT_OPTIONS=grp:alt_shift_toggle
 
 # Dark Themes (depends on another configuration)
 

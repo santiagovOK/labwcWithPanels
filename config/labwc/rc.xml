@@ -210,5 +210,10 @@
       </mousebind>
     </context>
   </mouse>
+  <libinput>
+    <device>
+      <disabledOnExternalMouse>yes</disabledOnExternalMouse>
+    </device>
+  </libinput>
 
 </labwc_config>
