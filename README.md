@@ -20,8 +20,8 @@ If you prefer to clone the repository manually:
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/santiagovOK/labwc_waybar_setup.git
-    cd labwc_waybar_setup
+    git clone https://github.com/santiagovOK/labwcWithPanels.git
+    cd labwcWithPanels
     ```
 
 2.  **Run the Orchestrator:**
