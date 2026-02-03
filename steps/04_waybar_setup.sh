@@ -13,6 +13,7 @@ log_step "Step 04: Waybar & UI Assets"
 
 PACKAGES=(
     "waybar"
+    "pcmanfm-qt"
     "fonts-font-awesome"
     "fonts-noto-color-emoji"
     "fonts-dejavu"
