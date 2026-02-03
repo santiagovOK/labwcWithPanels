@@ -85,7 +85,12 @@ for script in "${SCRIPT_FILES[@]}"; do
     # Using 'source' allows steps to share variables if needed, 
     # but running as executable (./) is safer for isolation. 
     # We choose execution for isolation.
-    ./"$script"
+    # Redirect stdin from /dev/tty if available to preserve interactivity
+    if [ -t 0 ]; then
+        ./"$script" < /dev/tty
+    else
+        ./"$script"
+    fi
     
     log_success "Module $script_name completed successfully."
 done
