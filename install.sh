@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-REPO_URL="https://github.com/santiagovOK/labwc_waybar_setup.git"
+REPO_URL="https://github.com/santiagovOK/labwcWithPanels.git"
 BRANCH="${BRANCH:-main}"
 INSTALL_DIR="$HOME/labwc_installer"
 
