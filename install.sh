@@ -49,7 +49,14 @@ fi
 echo -e "${B}Launching setup...${N}"
 chmod +x main.sh
 
-# Export environment variables for main.sh
+# Export environment variables for main.sh and preserve stdin for interactive prompts
 export BRANCH
 
-sudo -E ./main.sh
+# Redirect stdin to TTY to preserve interactive prompts when running with sudo
+if [ -t 0 ]; then
+    # Interactive mode: preserve stdin by redirecting from /dev/tty
+    sudo -E bash -c './main.sh < /dev/tty'
+else
+    # Non-interactive mode (e.g., curl | bash): run without TTY redirect
+    sudo -E ./main.sh
+fi
