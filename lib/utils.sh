@@ -67,7 +67,7 @@ safe_install() {
     
     while true; do
         # Verificar si ya está instalado (idempotencia)
-        if dpkg -l "$pkg" &> /dev/null; then
+        if is_installed "$pkg"; then
             log_success "$pkg is already installed."
             return 0
         fi
