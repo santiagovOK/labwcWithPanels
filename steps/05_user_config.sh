@@ -76,7 +76,7 @@ install_config() {
 log_info "Phase A: Deploying Dotfiles..."
 
 echo -e "${Y}Do you want to overwrite ~/.config with project dotfiles (labwc, waybar)?${N}"
-read -r -p "Deploy Configs? [y/N] " response
+response=$(safe_prompt "Deploy Configs? [y/N]" "N")
 
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     
@@ -107,7 +107,7 @@ fi
 log_info "Phase B: Shell Configuration"
 
 echo -e "${Y}Do you want to inject environment variables & aliases into .bashrc?${N}"
-read -r -p "Update .bashrc? [y/N] " response
+response=$(safe_prompt "Update .bashrc? [y/N]" "N")
 
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     

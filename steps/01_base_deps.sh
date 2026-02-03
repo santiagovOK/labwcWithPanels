@@ -60,7 +60,7 @@ fi
 # 4. Swap (Interactivo)
 if grep -q "swap" /proc/swaps; then
     log_warn "Active Swap detected."
-    read -r -p "Disable Swap permanently? [y/N] " response
+    response=$(safe_prompt "Disable Swap permanently? [y/N]" "N")
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
         swapoff -a
         sed -i '/swap/s/^/#/' /etc/fstab

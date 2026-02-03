@@ -51,7 +51,7 @@ safe_install() {
             echo "  [s] Skip  (Ignore this package and continue)"
             echo "  [a] Abort (Stop the entire script)"
             
-            read -p "Select option [r/s/a]: " choice
+            choice=$(safe_prompt "Select option [r/s/a]:" "a")
             case "$choice" in
                 r|R)
                     log_info "Retrying..."

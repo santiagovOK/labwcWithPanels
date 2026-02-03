@@ -165,3 +165,22 @@ check_internet() {
 is_installed() {
     dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "install ok installed"
 }
+
+# Safe interactive prompt that handles non-interactive mode (e.g., curl | bash)
+# Usage: safe_prompt "Question?" "default_value"
+# Returns: user input or default if stdin unavailable
+safe_prompt() {
+    local prompt_text="$1"
+    local default_value="${2:-N}"
+    local response=""
+    
+    # Check if stdin is a terminal (interactive mode)
+    if [ -t 0 ]; then
+        read -r -p "$prompt_text " response
+        echo "$response"
+    else
+        # Non-interactive mode: use default and log it
+        log_warn "Non-interactive mode detected. Using default: $default_value"
+        echo "$default_value"
+    fi
+}
