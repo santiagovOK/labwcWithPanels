@@ -17,7 +17,7 @@ curl -sL https://raw.githubusercontent.com/santiagovOK/labwcWithPanels/main/inst
 **Testing Branch (for development/testing):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/santiagovOK/labwc_waybar_setup/testing/install.sh | BRANCH=testing bash
+curl -fsSL https://raw.githubusercontent.com/santiagovOK/labwcWithPanels/testing/install.sh | BRANCH=testing bash
 ```
 
 ### 2. Manual Installation
