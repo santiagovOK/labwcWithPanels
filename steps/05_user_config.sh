@@ -2,6 +2,7 @@
 # steps/05_user_config.sh
 # Step 05: User Configuration & Dotfiles Linking
 # Update: Interactive prompts for Dotfiles and .bashrc separately.
+# TODO: Add NONINTERACTIVE mode support to skip user prompts (e.g., deploy configs, .bashrc)
 
 # ==============================================================================
 # BOOTSTRAP

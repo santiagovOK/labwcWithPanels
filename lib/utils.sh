@@ -67,13 +67,15 @@ safe_install() {
     
     while true; do
         # Verificar si ya está instalado (idempotencia)
-        if dpkg -l "$pkg" &> /dev/null; then
+        if is_installed "$pkg"; then
             log_success "$pkg is already installed."
             return 0
         fi
 
         log_info "Attempting to install: $pkg..."
-        
+        # Log attempted package for auditing
+        mkdir -p "$(dirname "$LOG_FILE")"
+        echo "$(date +%Y-%m-%dT%H:%M:%S) ATTEMPT $pkg" >> "$LOG_FILE".attempts
         # Desactivar modo estricto temporalmente para capturar el error
         set +e
         apt-get install -y -q "$pkg"
@@ -82,6 +84,7 @@ safe_install() {
 
         if [ $exit_code -eq 0 ]; then
             log_success "$pkg installed successfully."
+            echo "$(date +%Y-%m-%dT%H:%M:%S) INSTALLED $pkg" >> "$LOG_FILE".results
             return 0
         else
             echo ""
@@ -105,6 +108,7 @@ safe_install() {
                     ;;
                 s|S)
                     log_warn "SKIPPING $pkg. Note this for troubleshooting."
+                    echo "$(date +%Y-%m-%dT%H:%M:%S) SKIPPED $pkg" >> "$LOG_FILE".results
                     return 0
                     ;;
                 a|A)

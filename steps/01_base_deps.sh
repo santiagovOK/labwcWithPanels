@@ -2,6 +2,7 @@
 # steps/01_base_deps.sh
 # Step 01: Base Session, Hardware, Audio & Connectivity
 # Updated to use global safe_install
+# TODO: Add NONINTERACTIVE mode support to skip user prompts (e.g., swap disable)
 
 LIB_PATH="lib/utils.sh"
 if [[ ! -f "$LIB_PATH" && -f "../$LIB_PATH" ]]; then cd ..; fi

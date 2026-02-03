@@ -2,6 +2,7 @@
 # steps/03_wayland_core.sh
 # Step 03: Wayland Compositor & Userland
 # Fix: Robust Flatpak handling to prevent script crash on network errors.
+# TODO: Add NONINTERACTIVE mode support to skip user prompts (e.g., multimedia apps)
 
 # ==============================================================================
 # BOOTSTRAP
@@ -136,6 +137,9 @@ if [ "$FLATHUB_MISSING" != "true" ]; then
                 log_success "$app_name is already installed."
             else
                 log_info "Installing $app_name..."
+                # Log attempted flatpak app for auditing
+                mkdir -p "$(dirname \"$LOG_FILE\")"
+                echo "$(date +%Y-%m-%dT%H:%M:%S) FLATPAK_ATTEMPT $app_id ($app_name)" >> "$LOG_FILE".attempts
                 
                 # Soft Fail Protection
                 set +e
@@ -145,8 +149,10 @@ if [ "$FLATHUB_MISSING" != "true" ]; then
 
                 if [ $RET -eq 0 ]; then
                     log_success "$app_name installed successfully."
+                    echo "$(date +%Y-%m-%dT%H:%M:%S) FLATPAK_INSTALLED $app_id ($app_name)" >> "$LOG_FILE".results
                 else
                     log_warn "Failed to install $app_name (Exit Code: $RET)."
+                    echo "$(date +%Y-%m-%dT%H:%M:%S) FLATPAK_FAILED $app_id ($app_name) RET=$RET" >> "$LOG_FILE".results
                     log_warn "You can try manually: 'flatpak install flathub $app_id'"
                 fi
             fi
