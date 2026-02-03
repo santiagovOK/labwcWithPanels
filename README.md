@@ -11,7 +11,7 @@ This is a Bash orchestration script to automate the installation of a minimal Wa
 Run the following command to download and start the setup automatically:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/santiagovOK/labwc_waybar_setup/main/install.sh | bash
+curl -sL https://raw.githubusercontent.com/santiagovOK/labwcWithPanels/main/install.sh | bash
 ```
 
 ### 2. Manual Installation
