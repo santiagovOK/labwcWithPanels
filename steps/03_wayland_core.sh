@@ -124,7 +124,7 @@ if [ "$FLATHUB_MISSING" != "true" ]; then
     echo "  1. OBS Studio (Screen Recording & Streaming)"
     echo "  2. Kdenlive (Professional Video Editor)"
     
-    read -r -p "Do you want to install these multimedia apps? [y/N] " response
+    response=$(safe_prompt "Do you want to install these multimedia apps? [y/N]" "N")
 
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
         
