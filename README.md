@@ -11,7 +11,7 @@ This is a Bash orchestration script to automate the installation of a minimal Wa
 Run the following command to download and start the setup automatically:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/santiagovOK/labwc_waybar_setup/main/install.sh | bash
+curl -sL https://raw.githubusercontent.com/santiagovOK/labwcWithPanels/main/install.sh | bash
 ```
 
 **Testing Branch (for development/testing):**
@@ -26,8 +26,8 @@ If you prefer to clone the repository manually:
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/santiagovOK/labwc_waybar_setup.git
-    cd labwc_waybar_setup
+    git clone https://github.com/santiagovOK/labwcWithPanels.git
+    cd labwcWithPanels
     ```
 
 2.  **Run the Orchestrator:**
