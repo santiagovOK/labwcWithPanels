@@ -174,9 +174,10 @@ safe_prompt() {
     local default_value="${2:-N}"
     local response=""
     
-    # Check if stdin is a terminal (interactive mode)
-    if [ -t 0 ]; then
-        read -r -p "$prompt_text " response
+    # Check if /dev/tty is available (interactive terminal)
+    if [ -e /dev/tty ]; then
+        # Read directly from terminal to avoid subshell stdin issues
+        read -r -p "$prompt_text " response < /dev/tty
         echo "$response"
     else
         # Non-interactive mode: use default and log it
