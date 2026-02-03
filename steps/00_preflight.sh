@@ -2,6 +2,7 @@
 # steps/00_preflight.sh
 # Step 00: System Preparation & Base Updates
 # Update: Adds interactive error handling (Retry/Skip/Abort)
+# TODO: Add NONINTERACTIVE mode support to skip user prompts (e.g., retry/skip/abort)
 
 # ==============================================================================
 # BOOTSTRAP

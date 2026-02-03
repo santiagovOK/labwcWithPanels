@@ -2,10 +2,12 @@
 # install.sh
 # One-liner installer for LabWC Waybar Setup
 # Usage: curl -sL <url> | bash
+# Usage with branch: curl -sL <url> | BRANCH=testing bash
 
-set -e
+set -euo pipefail
 
 REPO_URL="https://github.com/santiagovOK/labwc_waybar_setup.git"
+BRANCH="${BRANCH:-main}"
 INSTALL_DIR="$HOME/labwc_installer"
 
 # Colors
@@ -34,14 +36,20 @@ fi
 if [ -d "$INSTALL_DIR" ]; then
     echo -e "${B}Updating existing repository at $INSTALL_DIR...${N}"
     cd "$INSTALL_DIR"
+    git fetch
+    git checkout "$BRANCH"
     git pull
 else
-    echo -e "${B}Cloning repository to $INSTALL_DIR...${N}"
-    git clone "$REPO_URL" "$INSTALL_DIR"
+    echo -e "${B}Cloning repository to $INSTALL_DIR (branch: $BRANCH)...${N}"
+    git clone --branch "$BRANCH" "$REPO_URL" "$INSTALL_DIR"
     cd "$INSTALL_DIR"
 fi
 
 # 4. Handover to Main Script
 echo -e "${B}Launching setup...${N}"
 chmod +x main.sh
-sudo ./main.sh
+
+# Export environment variables for main.sh
+export BRANCH
+
+sudo -E ./main.sh

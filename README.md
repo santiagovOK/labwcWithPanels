@@ -14,6 +14,12 @@ Run the following command to download and start the setup automatically:
 curl -sL https://raw.githubusercontent.com/santiagovOK/labwc_waybar_setup/main/install.sh | bash
 ```
 
+**Testing Branch (for development/testing):**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/santiagovOK/labwc_waybar_setup/testing/install.sh | BRANCH=testing bash
+```
+
 ### 2. Manual Installation
 
 If you prefer to clone the repository manually:
@@ -64,6 +70,24 @@ If you prefer to clone the repository manually:
 The installation process is driven by a central orchestrator (`install.sh`) that executes isolated, numbered steps. The system relies on a global error trap and strict validation logic.
 
 ![img/architecture.mmd](img/architecture.png)
+
+## 🌿 Branch Strategy
+
+This project uses a structured branching model for stable releases and testing:
+
+| Branch | Purpose | Installation |
+| :--- | :--- | :--- |
+| **`main`** | Production-ready stable releases | `curl -sL https://.../main/install.sh \| bash` |
+| **`develop`** | Integration branch for new features | Manual clone and checkout |
+| **`testing`** | Testing installer and new changes via curl | `curl -fsSL https://.../testing/install.sh \| BRANCH=testing bash` |
+| **`feature/*`** | Individual feature development | Manual clone and checkout |
+
+### Workflow Rules
+
+1. **Direct commits** only to `feature/*` branches
+2. **Pull Requests** required for merging into `testing`, `develop`, or `main`
+3. **Testing first**: Changes should be validated in `testing` before merging to `develop`
+4. **Code review**: At least 1 approval required for PRs to `develop` or `main`
 
 ## 📄 License
 

@@ -2,6 +2,7 @@
 # steps/03_wayland_core.sh
 # Step 03: Wayland Compositor & Userland
 # Fix: Robust Flatpak handling to prevent script crash on network errors.
+# TODO: Add NONINTERACTIVE mode support to skip user prompts (e.g., multimedia apps)
 
 # ==============================================================================
 # BOOTSTRAP
