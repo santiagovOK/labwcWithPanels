@@ -112,6 +112,10 @@ for script in "${SCRIPT_FILES[@]}"; do
     run_step_script "$script"
     exit_code=$?
     
+    # Re-enable errexit after capturing exit code from function
+    # (function disables it globally with set +e)
+    set -e
+    
     if [ $exit_code -ne 0 ]; then
         log_error "Script $script_name exited with code: $exit_code"
         export SCRIPT_SELF_REPORTED_ERROR=1
