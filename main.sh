@@ -76,6 +76,9 @@ log_info "Found ${#SCRIPT_FILES[@]} steps to execute."
 for script in "${SCRIPT_FILES[@]}"; do
     script_name=$(basename "$script")
     
+    # Export current script name for error context
+    export CURRENT_SCRIPT="$script_name"
+    
     log_step "Executing Module: $script_name"
     
     # Ensure the step is executable
@@ -87,12 +90,21 @@ for script in "${SCRIPT_FILES[@]}"; do
     # We choose execution for isolation.
     # Redirect stdin from /dev/tty if available to preserve interactivity
     if [ -t 0 ]; then
-        ./"$script" < /dev/tty
+        ./"$script" < /dev/tty || {
+            local exit_code=$?
+            log_error "Script $script_name exited with code: $exit_code"
+            exit "$exit_code"
+        }
     else
-        ./"$script"
+        ./"$script" || {
+            local exit_code=$?
+            log_error "Script $script_name exited with code: $exit_code"
+            exit "$exit_code"
+        }
     fi
     
     log_success "Module $script_name completed successfully."
+    unset CURRENT_SCRIPT
 done
 
 # ==============================================================================

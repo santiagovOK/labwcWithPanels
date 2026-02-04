@@ -6,9 +6,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
 
 # shellcheck source=lib/utils.sh
 source "$PROJECT_ROOT/lib/utils.sh"
+trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
 
 # Function to display build diagnostics
 show_build_diagnostics() {
@@ -116,6 +118,7 @@ SFWBAR_REPO="https://github.com/LBCrion/sfwbar"
 CLONE_SUCCESS=false
 for attempt in {1..3}; do
     log_info "Cloning sfwbar (attempt $attempt/3)..."
+    log_info "Executing: git clone --depth 1 $SFWBAR_REPO"
     if sudo -u "$CURRENT_USER" git clone --depth 1 "$SFWBAR_REPO" "$BUILD_DIR"; then
         CLONE_SUCCESS=true
         break
@@ -141,6 +144,7 @@ cd "$BUILD_DIR"
 
 # Run meson as user with output capture
 log_info "Running meson setup (output logged to $LOG_FILE)..."
+log_info "Executing: meson setup build --prefix=/usr/local -Dnetwork=enabled -Dbluez=disabled"
 if ! sudo -u "$CURRENT_USER" meson setup build \
     --prefix=/usr/local \
     -Dnetwork=enabled \
@@ -152,6 +156,7 @@ fi
 
 log_info "Compiling sfwbar (this may take 3-5 minutes)..."
 log_info "Compilation output logged to $LOG_FILE"
+log_info "Executing: ninja -C build"
 if ! sudo -u "$CURRENT_USER" ninja -C build 2>&1 | tee -a "$LOG_FILE"; then
     show_build_diagnostics "$BUILD_DIR"
     log_error "Compilation failed"
@@ -159,6 +164,7 @@ if ! sudo -u "$CURRENT_USER" ninja -C build 2>&1 | tee -a "$LOG_FILE"; then
 fi
 
 log_info "Installing sfwbar to /usr/local..."
+log_info "Executing: ninja -C build install"
 if ! ninja -C build install 2>&1 | tee -a "$LOG_FILE"; then
     log_error "Installation failed"
     exit 1

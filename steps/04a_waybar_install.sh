@@ -9,6 +9,7 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 # shellcheck source=lib/utils.sh
 source "$PROJECT_ROOT/lib/utils.sh"
+trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
 
 # Check if waybar was selected
 PANEL_CHOICE=$(cat /tmp/labwc_panel_choice 2>/dev/null || echo "waybar")

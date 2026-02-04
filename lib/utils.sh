@@ -53,9 +53,23 @@ error_handler() {
     if [ $exit_code -eq 0 ]; then return; fi
 
     log_error "Critical failure detected!"
-    log_error "Failed command: $last_command"
+    
+    # Provide context-aware error messages
+    if [[ "$last_command" == *"./"* ]] && [[ -n "${CURRENT_SCRIPT:-}" ]]; then
+        log_error "Failed in script: $CURRENT_SCRIPT"
+        log_error "Script execution: $last_command"
+    else
+        log_error "Failed command: $last_command"
+    fi
+    
     log_error "Line: $line_no | Exit Code: $exit_code"
     log_error "See $LOG_FILE for full details."
+    
+    # Additional debugging hints
+    if [[ -n "${CURRENT_SCRIPT:-}" ]]; then
+        log_error "Check the script for detailed error messages above."
+    fi
+    
     exit "$exit_code"
 }
 
