@@ -56,9 +56,8 @@ run_step_script() {
         exit_code=$?
     fi
     
-    # Re-enable errexit
-    set -e
-    
+    # Don't re-enable errexit here - return propagates the exit code
+    # The caller will handle it with set -e active in their context
     return "$exit_code"
 }
 
