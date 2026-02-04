@@ -16,8 +16,9 @@ xhost +si:localuser:root
 
 # wlr-randr --output DP-1 --mode 1920x1080@143.854996 --adaptive-sync enabled &
 
-# Starts Waybar
-waybar &
+# Panel startup (waybar or sfwbar)
+# This placeholder will be replaced during installation based on user's panel choice
+##PANEL_AUTOSTART##
 
 # nm-applet &
 blueman-applet &

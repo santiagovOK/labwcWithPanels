@@ -1,15 +1,23 @@
 #!/bin/bash
-# steps/04_waybar_setup.sh
-# Updated to use global safe_install
+# steps/04a_waybar_install.sh
+# Waybar installation (only runs if selected)
 
-LIB_PATH="lib/utils.sh"
-if [[ ! -f "$LIB_PATH" && -f "../$LIB_PATH" ]]; then cd ..; fi
-if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit 1; fi
-# shellcheck source=../lib/utils.sh
-source "$LIB_PATH"
-trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
+set -euo pipefail
 
-log_step "Step 04: Waybar & UI Assets"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# shellcheck source=lib/utils.sh
+source "$PROJECT_ROOT/lib/utils.sh"
+
+# Check if waybar was selected
+PANEL_CHOICE=$(cat /tmp/labwc_panel_choice 2>/dev/null || echo "waybar")
+if [[ "$PANEL_CHOICE" != "waybar" ]]; then
+    log_info "Skipping Waybar installation (selected: $PANEL_CHOICE)"
+    exit 0
+fi
+
+log_step "Step 04a: Waybar Installation & UI Assets"
 
 PACKAGES=(
     "waybar"
