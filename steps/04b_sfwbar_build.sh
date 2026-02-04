@@ -10,6 +10,28 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 # shellcheck source=lib/utils.sh
 source "$PROJECT_ROOT/lib/utils.sh"
 
+# Function to display build diagnostics
+show_build_diagnostics() {
+    local build_dir="$1"
+    local meson_log="$build_dir/build/meson-logs/meson-log.txt"
+    
+    log_error "Build failed. Checking diagnostics..."
+    
+    if [[ -f "$meson_log" ]]; then
+        log_info "Meson build log (last 30 lines):"
+        tail -n 30 "$meson_log" | while IFS= read -r line; do
+            echo "  $line" >&2
+        done
+    else
+        log_warn "Meson log not found at: $meson_log"
+    fi
+    
+    # Check for common missing dependencies
+    if [[ -f "$meson_log" ]] && grep -q "pkg-config" "$meson_log"; then
+        log_info "Hint: Missing pkg-config dependencies detected. Check above for specific packages."
+    fi
+}
+
 # Check if sfwbar was selected
 PANEL_CHOICE=$(cat /tmp/labwc_panel_choice 2>/dev/null || echo "waybar")
 if [[ "$PANEL_CHOICE" != "sfwbar" ]]; then
@@ -49,6 +71,20 @@ UI_DEPS=(
     "gparted"
 )
 
+log_info "Verifying dependency availability..."
+# Check critical dependency package name
+if ! apt-cache show libgtk-layer-shell-dev >/dev/null 2>&1; then
+    log_warn "libgtk-layer-shell-dev not found, checking alternatives..."
+    if apt-cache show gtk-layer-shell >/dev/null 2>&1; then
+        log_info "Using gtk-layer-shell instead"
+        BUILD_DEPS[6]="gtk-layer-shell"
+    else
+        log_error "gtk-layer-shell library not available in repositories"
+        log_error "This is required for Wayland layer shell support"
+        exit 1
+    fi
+fi
+
 log_info "Installing build dependencies for sfwbar..."
 for pkg in "${BUILD_DEPS[@]}"; do
     safe_install "$pkg"
@@ -75,35 +111,82 @@ if [[ -d "$BUILD_DIR" ]]; then
     rm -rf "$BUILD_DIR"
 fi
 
-# Clone as user, not root
-sudo -u "$CURRENT_USER" git clone https://github.com/LBCrion/sfwbar "$BUILD_DIR"
+# Clone with retry logic (max 3 attempts)
+SFWBAR_REPO="https://github.com/LBCrion/sfwbar"
+CLONE_SUCCESS=false
+for attempt in {1..3}; do
+    log_info "Cloning sfwbar (attempt $attempt/3)..."
+    if sudo -u "$CURRENT_USER" git clone --depth 1 "$SFWBAR_REPO" "$BUILD_DIR"; then
+        CLONE_SUCCESS=true
+        break
+    else
+        log_warn "Clone attempt $attempt failed"
+        sleep 2
+    fi
+done
+
+if [[ "$CLONE_SUCCESS" != "true" ]]; then
+    log_error "Failed to clone sfwbar repository after 3 attempts"
+    log_error "Check internet connection and GitHub availability"
+    exit 1
+fi
+
+# Display cloned version info
+cd "$BUILD_DIR"
+GIT_COMMIT=$(sudo -u "$CURRENT_USER" git rev-parse --short HEAD)
+log_info "Cloned sfwbar at commit: $GIT_COMMIT"
 
 log_info "Configuring build with meson..."
 cd "$BUILD_DIR"
 
-# Run meson as user
-sudo -u "$CURRENT_USER" meson setup build \
+# Run meson as user with output capture
+log_info "Running meson setup (output logged to $LOG_FILE)..."
+if ! sudo -u "$CURRENT_USER" meson setup build \
     --prefix=/usr/local \
     -Dnetwork=enabled \
-    -Dbluez=disabled
-
-log_info "Compiling sfwbar (this may take 3-5 minutes)..."
-sudo -u "$CURRENT_USER" ninja -C build
-
-log_info "Installing sfwbar to /usr/local..."
-ninja -C build install
-
-# Verify installation
-if command -v sfwbar >/dev/null 2>&1; then
-    SFWBAR_VERSION=$(sfwbar -v 2>&1 | head -n1 || echo "unknown")
-    log_success "sfwbar installed successfully: $SFWBAR_VERSION"
-else
-    log_error "sfwbar installation failed - binary not found in PATH"
+    -Dbluez=disabled 2>&1 | tee -a "$LOG_FILE"; then
+    show_build_diagnostics "$BUILD_DIR"
+    log_error "Meson configuration failed"
     exit 1
 fi
 
-# Update linker cache for /usr/local/lib
-ldconfig
+log_info "Compiling sfwbar (this may take 3-5 minutes)..."
+log_info "Compilation output logged to $LOG_FILE"
+if ! sudo -u "$CURRENT_USER" ninja -C build 2>&1 | tee -a "$LOG_FILE"; then
+    show_build_diagnostics "$BUILD_DIR"
+    log_error "Compilation failed"
+    exit 1
+fi
+
+log_info "Installing sfwbar to /usr/local..."
+if ! ninja -C build install 2>&1 | tee -a "$LOG_FILE"; then
+    log_error "Installation failed"
+    exit 1
+fi
+
+# Update linker cache for /usr/local/lib first
+if ! ldconfig 2>&1 | tee -a "$LOG_FILE"; then
+    log_warn "ldconfig reported warnings (non-critical)"
+fi
+
+# Verify installation with explicit PATH
+export PATH="/usr/local/bin:$PATH"
+log_info "Verifying sfwbar installation..."
+
+if command -v sfwbar >/dev/null 2>&1; then
+    SFWBAR_VERSION=$(sfwbar -v 2>&1 | head -n1 || echo "unknown")
+    SFWBAR_PATH=$(command -v sfwbar)
+    log_success "sfwbar installed successfully: $SFWBAR_VERSION"
+    log_info "Binary location: $SFWBAR_PATH"
+else
+    log_error "sfwbar installation failed - binary not found in PATH"
+    log_error "Checked PATH: $PATH"
+    log_error "Expected location: /usr/local/bin/sfwbar"
+    if [[ -f "/usr/local/bin/sfwbar" ]]; then
+        log_error "Binary exists but is not executable or PATH issue detected"
+    fi
+    exit 1
+fi
 
 # Create config directory
 log_info "Creating sfwbar config directory..."
