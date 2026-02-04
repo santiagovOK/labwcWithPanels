@@ -8,6 +8,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
 
+# Exit codes for specific failures
+readonly EXIT_DEPENDENCY_MISSING=10
+readonly EXIT_USER_DETECTION_FAILED=11
+readonly EXIT_GIT_CLONE_FAILED=12
+readonly EXIT_MESON_CONFIG_FAILED=13
+readonly EXIT_NINJA_BUILD_FAILED=14
+readonly EXIT_NINJA_INSTALL_FAILED=15
+readonly EXIT_BINARY_VERIFICATION_FAILED=16
+
 # shellcheck source=lib/utils.sh
 source "$PROJECT_ROOT/lib/utils.sh"
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
@@ -84,7 +93,7 @@ if ! apt-cache show libgtk-layer-shell-dev >/dev/null 2>&1; then
         log_error "gtk-layer-shell library not available in repositories"
         log_error "This is required for Wayland layer shell support"
         export SCRIPT_SELF_REPORTED_ERROR=1
-        exit 1
+        exit $EXIT_DEPENDENCY_MISSING
     fi
 fi
 
@@ -103,7 +112,7 @@ CURRENT_USER=$(logname 2>/dev/null || echo "$SUDO_USER")
 if [[ -z "$CURRENT_USER" ]]; then
     log_error "Cannot determine non-root user for build"
     export SCRIPT_SELF_REPORTED_ERROR=1
-    exit 1
+    exit $EXIT_USER_DETECTION_FAILED
 fi
 
 USER_HOME=$(eval echo "~$CURRENT_USER")
@@ -134,7 +143,7 @@ if [[ "$CLONE_SUCCESS" != "true" ]]; then
     log_error "Failed to clone sfwbar repository after 3 attempts"
     log_error "Check internet connection and GitHub availability"
     export SCRIPT_SELF_REPORTED_ERROR=1
-    exit 1
+    exit $EXIT_GIT_CLONE_FAILED
 fi
 
 # Display cloned version info
@@ -155,7 +164,7 @@ if ! sudo -u "$CURRENT_USER" meson setup build \
     show_build_diagnostics "$BUILD_DIR"
     log_error "Meson configuration failed"
     export SCRIPT_SELF_REPORTED_ERROR=1
-    exit 1
+    exit $EXIT_MESON_CONFIG_FAILED
 fi
 
 log_info "Compiling sfwbar (this may take 3-5 minutes)..."
@@ -165,7 +174,7 @@ if ! sudo -u "$CURRENT_USER" ninja -C build 2>&1 | tee -a "$LOG_FILE"; then
     show_build_diagnostics "$BUILD_DIR"
     log_error "Compilation failed"
     export SCRIPT_SELF_REPORTED_ERROR=1
-    exit 1
+    exit $EXIT_NINJA_BUILD_FAILED
 fi
 
 log_info "Installing sfwbar to /usr/local..."
@@ -173,7 +182,7 @@ log_info "Executing: ninja -C build install"
 if ! ninja -C build install 2>&1 | tee -a "$LOG_FILE"; then
     log_error "Installation failed"
     export SCRIPT_SELF_REPORTED_ERROR=1
-    exit 1
+    exit $EXIT_NINJA_INSTALL_FAILED
 fi
 
 # Update linker cache for /usr/local/lib first
@@ -198,7 +207,7 @@ else
         log_error "Binary exists but is not executable or PATH issue detected"
     fi
     export SCRIPT_SELF_REPORTED_ERROR=1
-    exit 1
+    exit $EXIT_BINARY_VERIFICATION_FAILED
 fi
 
 # Create config directory

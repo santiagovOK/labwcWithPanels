@@ -113,6 +113,19 @@ for script in "${SCRIPT_FILES[@]}"; do
     
     if [ $exit_code -ne 0 ]; then
         log_error "Script $script_name exited with code: $exit_code"
+        
+        # Provide context for specific exit codes
+        case $exit_code in
+            10) log_error "Reason: Missing dependency" ;;
+            11) log_error "Reason: User detection failed" ;;
+            12) log_error "Reason: Git clone failed" ;;
+            13) log_error "Reason: Meson configuration failed" ;;
+            14) log_error "Reason: Ninja build/compilation failed" ;;
+            15) log_error "Reason: Installation failed" ;;
+            16) log_error "Reason: Binary verification failed" ;;
+            *) log_error "Reason: General error" ;;
+        esac
+        
         export SCRIPT_SELF_REPORTED_ERROR=1
         exit "$exit_code"
     fi
