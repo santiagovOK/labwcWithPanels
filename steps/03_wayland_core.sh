@@ -4,12 +4,16 @@
 # Fix: Robust Flatpak handling to prevent script crash on network errors.
 # TODO: Add NONINTERACTIVE mode support to skip user prompts (e.g., multimedia apps)
 
+# Exit codes for specific failures
+readonly EXIT_WAYLAND_PACKAGE_FAILED=12
+readonly EXIT_BRAVE_INSTALL_FAILED=41
+
 # ==============================================================================
 # BOOTSTRAP
 # ==============================================================================
 LIB_PATH="lib/utils.sh"
 if [[ ! -f "$LIB_PATH" && -f "../$LIB_PATH" ]]; then cd ..; fi
-if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit 1; fi
+if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit $EXIT_WAYLAND_PACKAGE_FAILED; fi
 # shellcheck source=../lib/utils.sh
 source "$LIB_PATH"
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM

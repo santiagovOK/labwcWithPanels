@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+# Exit codes for specific failures
+readonly EXIT_WAYBAR_PACKAGE_FAILED=13
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 

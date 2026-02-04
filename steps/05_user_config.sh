@@ -4,12 +4,17 @@
 # Update: Interactive prompts for Dotfiles and .bashrc separately.
 # TODO: Add NONINTERACTIVE mode support to skip user prompts (e.g., deploy configs, .bashrc)
 
+# Exit codes for specific failures
+readonly EXIT_CONFIG_DIR_FAILED=71
+readonly EXIT_CONFIG_SYMLINK_FAILED=72
+readonly EXIT_USER_DETECTION_FAILED=11
+
 # ==============================================================================
 # BOOTSTRAP
 # ==============================================================================
 LIB_PATH="lib/utils.sh"
 if [[ ! -f "$LIB_PATH" && -f "../$LIB_PATH" ]]; then cd ..; fi
-if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit 1; fi
+if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit $EXIT_CONFIG_DIR_FAILED; fi
 # shellcheck source=../lib/utils.sh
 source "$LIB_PATH"
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
@@ -23,7 +28,8 @@ log_step "Step 05: Applying User Configurations"
 CURRENT_USER=$(logname 2>/dev/null || echo "$SUDO_USER")
 if [[ -z "$CURRENT_USER" || "$CURRENT_USER" == "root" ]]; then
     log_error "Cannot determine target non-root user. Do not run as pure root."
-    exit 1
+    export SCRIPT_SELF_REPORTED_ERROR=1
+    exit $EXIT_USER_DETECTION_FAILED
 fi
 
 USER_HOME=$(eval echo "~$CURRENT_USER")

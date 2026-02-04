@@ -18,11 +18,16 @@ cd "$(dirname "$0")"
 # ==============================================================================
 # 2. LOAD LIBRARY
 # ==============================================================================
+# Exit codes for main orchestrator
+readonly EXIT_MISSING_LIBRARY=70
+readonly EXIT_MISSING_STEPS_DIR=71
+readonly EXIT_NO_SCRIPTS_FOUND=72
+
 LIB_PATH="lib/utils.sh"
 
 if [[ ! -f "$LIB_PATH" ]]; then
     echo "CRITICAL ERROR: Cannot find library at $LIB_PATH"
-    exit 1
+    exit $EXIT_MISSING_LIBRARY
 fi
 
 # shellcheck source=lib/utils.sh
@@ -69,7 +74,8 @@ STEPS_DIR="steps"
 # Verify steps directory exists
 if [[ ! -d "$STEPS_DIR" ]]; then
     log_error "Steps directory '$STEPS_DIR' not found!"
-    exit 1
+    export SCRIPT_SELF_REPORTED_ERROR=1
+    exit $EXIT_MISSING_STEPS_DIR
 fi
 
 # Get list of scripts sorted naturally (00, 01, ... 10)
@@ -85,7 +91,8 @@ eval "$failglob_state"
 
 if [ ${#SCRIPT_FILES[@]} -eq 0 ]; then
     log_error "No .sh scripts found in $STEPS_DIR/"
-    exit 1
+    export SCRIPT_SELF_REPORTED_ERROR=1
+    exit $EXIT_NO_SCRIPTS_FOUND
 fi
 
 log_info "Found ${#SCRIPT_FILES[@]} steps to execute."
@@ -116,13 +123,36 @@ for script in "${SCRIPT_FILES[@]}"; do
         
         # Provide context for specific exit codes
         case $exit_code in
-            10) log_error "Reason: Missing dependency" ;;
-            11) log_error "Reason: User detection failed" ;;
-            12) log_error "Reason: Git clone failed" ;;
-            13) log_error "Reason: Meson configuration failed" ;;
+            # Dependencies (10-19)
+            10) log_error "Reason: Missing dependency or base package failed" ;;
+            11) log_error "Reason: Video package or user detection failed" ;;
+            12) log_error "Reason: Wayland package or git clone failed" ;;
+            13) log_error "Reason: Meson configuration or Waybar package failed" ;;
             14) log_error "Reason: Ninja build/compilation failed" ;;
-            15) log_error "Reason: Installation failed" ;;
+            15) log_error "Reason: Ninja installation failed" ;;
             16) log_error "Reason: Binary verification failed" ;;
+            
+            # Configuration (20-29)
+            
+            # Build/Compile (30-39)
+            
+            # Installation (40-49)
+            41) log_error "Reason: Brave browser installation failed" ;;
+            
+            # Verification (50-59)
+            
+            # User Interaction (60-69)
+            60) log_error "Reason: Script must be run as root" ;;
+            61) log_error "Reason: Wrong distribution (not Debian Trixie)" ;;
+            62) log_error "Reason: Invalid panel choice or user aborted" ;;
+            
+            # File System (70-79)
+            71) log_error "Reason: Failed to create config directory" ;;
+            72) log_error "Reason: Failed to create config symlink" ;;
+            
+            # Network (80-89)
+            80) log_error "Reason: No internet connectivity" ;;
+            
             *) log_error "Reason: General error" ;;
         esac
         
