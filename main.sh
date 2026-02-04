@@ -36,6 +36,33 @@ source "$LIB_PATH"
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
 
 # ==============================================================================
+# 3a. STEP SCRIPT EXECUTION FUNCTION
+# ==============================================================================
+# Safely execute a step script with proper exit code capture
+# Uses set +e pattern to avoid triggering trap during exit code assignment
+run_step_script() {
+    local script="$1"
+    local exit_code
+    
+    # Temporarily disable errexit to capture exit code safely
+    set +e
+    
+    # Execute with stdin redirection if available
+    if [ -t 0 ]; then
+        ./"$script" < /dev/tty
+        exit_code=$?
+    else
+        ./"$script"
+        exit_code=$?
+    fi
+    
+    # Re-enable errexit
+    set -e
+    
+    return "$exit_code"
+}
+
+# ==============================================================================
 # 4. PRE-EXECUTION CHECKS (Phase I)
 # ==============================================================================
 log_step "Phase I: Initialization & Validation"
@@ -76,35 +103,23 @@ log_info "Found ${#SCRIPT_FILES[@]} steps to execute."
 for script in "${SCRIPT_FILES[@]}"; do
     script_name=$(basename "$script")
     
-    # Export current script name for error context
-    export CURRENT_SCRIPT="$script_name"
-    
     log_step "Executing Module: $script_name"
     
     # Ensure the step is executable
     chmod +x "$script"
     
-    # Execute the script in the current shell environment
-    # Using 'source' allows steps to share variables if needed, 
-    # but running as executable (./) is safer for isolation. 
-    # We choose execution for isolation.
-    # Redirect stdin from /dev/tty if available to preserve interactivity
-    if [ -t 0 ]; then
-        ./"$script" < /dev/tty || {
-            local exit_code=$?
-            log_error "Script $script_name exited with code: $exit_code"
-            exit "$exit_code"
-        }
-    else
-        ./"$script" || {
-            local exit_code=$?
-            log_error "Script $script_name exited with code: $exit_code"
-            exit "$exit_code"
-        }
+    # Execute the script using safe function wrapper
+    # This function handles exit code capture without triggering the trap
+    run_step_script "$script"
+    exit_code=$?
+    
+    if [ $exit_code -ne 0 ]; then
+        log_error "Script $script_name exited with code: $exit_code"
+        export SCRIPT_SELF_REPORTED_ERROR=1
+        exit "$exit_code"
     fi
     
     log_success "Module $script_name completed successfully."
-    unset CURRENT_SCRIPT
 done
 
 # ==============================================================================

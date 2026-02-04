@@ -51,24 +51,17 @@ error_handler() {
     # Evitamos que el trap se dispare si el código de salida es 0 (éxito)
     # o si ya estamos gestionando el error manualmente en safe_install
     if [ $exit_code -eq 0 ]; then return; fi
+    
+    # Check if the script already reported the error (quiet-exit mode)
+    if [[ "${SCRIPT_SELF_REPORTED_ERROR:-0}" == "1" ]]; then
+        # Script already logged the error, exit silently to avoid duplicates
+        exit "$exit_code"
+    fi
 
     log_error "Critical failure detected!"
-    
-    # Provide context-aware error messages
-    if [[ "$last_command" == *"./"* ]] && [[ -n "${CURRENT_SCRIPT:-}" ]]; then
-        log_error "Failed in script: $CURRENT_SCRIPT"
-        log_error "Script execution: $last_command"
-    else
-        log_error "Failed command: $last_command"
-    fi
-    
+    log_error "Failed command: $last_command"
     log_error "Line: $line_no | Exit Code: $exit_code"
     log_error "See $LOG_FILE for full details."
-    
-    # Additional debugging hints
-    if [[ -n "${CURRENT_SCRIPT:-}" ]]; then
-        log_error "Check the script for detailed error messages above."
-    fi
     
     exit "$exit_code"
 }

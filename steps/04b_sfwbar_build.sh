@@ -83,6 +83,7 @@ if ! apt-cache show libgtk-layer-shell-dev >/dev/null 2>&1; then
     else
         log_error "gtk-layer-shell library not available in repositories"
         log_error "This is required for Wayland layer shell support"
+        export SCRIPT_SELF_REPORTED_ERROR=1
         exit 1
     fi
 fi
@@ -101,6 +102,7 @@ done
 CURRENT_USER=$(logname 2>/dev/null || echo "$SUDO_USER")
 if [[ -z "$CURRENT_USER" ]]; then
     log_error "Cannot determine non-root user for build"
+    export SCRIPT_SELF_REPORTED_ERROR=1
     exit 1
 fi
 
@@ -131,6 +133,7 @@ done
 if [[ "$CLONE_SUCCESS" != "true" ]]; then
     log_error "Failed to clone sfwbar repository after 3 attempts"
     log_error "Check internet connection and GitHub availability"
+    export SCRIPT_SELF_REPORTED_ERROR=1
     exit 1
 fi
 
@@ -151,6 +154,7 @@ if ! sudo -u "$CURRENT_USER" meson setup build \
     -Dbluez=disabled 2>&1 | tee -a "$LOG_FILE"; then
     show_build_diagnostics "$BUILD_DIR"
     log_error "Meson configuration failed"
+    export SCRIPT_SELF_REPORTED_ERROR=1
     exit 1
 fi
 
@@ -160,6 +164,7 @@ log_info "Executing: ninja -C build"
 if ! sudo -u "$CURRENT_USER" ninja -C build 2>&1 | tee -a "$LOG_FILE"; then
     show_build_diagnostics "$BUILD_DIR"
     log_error "Compilation failed"
+    export SCRIPT_SELF_REPORTED_ERROR=1
     exit 1
 fi
 
@@ -167,6 +172,7 @@ log_info "Installing sfwbar to /usr/local..."
 log_info "Executing: ninja -C build install"
 if ! ninja -C build install 2>&1 | tee -a "$LOG_FILE"; then
     log_error "Installation failed"
+    export SCRIPT_SELF_REPORTED_ERROR=1
     exit 1
 fi
 
@@ -191,6 +197,7 @@ else
     if [[ -f "/usr/local/bin/sfwbar" ]]; then
         log_error "Binary exists but is not executable or PATH issue detected"
     fi
+    export SCRIPT_SELF_REPORTED_ERROR=1
     exit 1
 fi
 
