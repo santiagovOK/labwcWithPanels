@@ -98,6 +98,9 @@ for script in "${SCRIPT_FILES[@]}"; do
     # Ensure the step is executable
     chmod +x "$script"
     
+    # Temporarily disable ERR trap and errexit
+    trap - ERR
+    
     # Execute the script using safe function wrapper
     # This function handles exit code capture without triggering the trap
     set +e  # Disable trap BEFORE executing
