@@ -42,23 +42,14 @@ trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
 # Uses set +e pattern to avoid triggering trap during exit code assignment
 run_step_script() {
     local script="$1"
-    local exit_code
-    
-    # Temporarily disable errexit to capture exit code safely
-    set +e
     
     # Execute with stdin redirection if available
+    # Note: Caller is responsible for managing set -e state
     if [ -t 0 ]; then
         ./"$script" < /dev/tty
-        exit_code=$?
     else
         ./"$script"
-        exit_code=$?
     fi
-    
-    # Don't re-enable errexit here - return propagates the exit code
-    # The caller will handle it with set -e active in their context
-    return "$exit_code"
 }
 
 # ==============================================================================
@@ -109,6 +100,7 @@ for script in "${SCRIPT_FILES[@]}"; do
     
     # Execute the script using safe function wrapper
     # This function handles exit code capture without triggering the trap
+    set +e  # Disable trap BEFORE executing
     run_step_script "$script"
     exit_code=$?
     
