@@ -1,6 +1,14 @@
-# Debian 13 (Trixie) Minimal Setup: Labwc + Waybar
+# Debian 13 (Trixie) Minimal Setup: Labwc + Panels
 
-This is a Bash orchestration script to automate the installation of a minimal Wayland environment using **Labwc** (Compositor) and **Waybar** (Status Bar) on Debian 13.
+This is a Bash orchestration script to automate the installation of a minimal Wayland environment using **Labwc** (Compositor) with configurable panel options on Debian 13.
+
+## Panel Options
+
+| Panel | Status | Description |
+| :--- | :--- | :--- |
+| **Waybar** | ✅ **Current** | Highly customizable Wayland bar (default) |
+| **sfwbar** | 🔄 **Pending** | Simple Wayland bar with taskbar support |
+| **xfce4-panel** | 🔄 **Pending** | Full-featured panel from XFCE desktop |
 
 ---
 
@@ -51,7 +59,7 @@ If you prefer to clone the repository manually:
 | **`main.sh`** | The entry point. Initializes logging and runs steps in order. |
 | **`lib/`** | Contains `utils.sh` (logging colors, error traps, validation functions). |
 | **`steps/`** | Numbered scripts containing the actual logic. |
-| **`config/`** | Source dotfiles for Labwc and Waybar (symlinked during install). |
+| **`config/`** | Source dotfiles for Labwc and panel configurations (symlinked during install). |
 | **`logs/`** | Auto-generated logs for every installation attempt. |
 | **`img/`** | Image source files. |
 | **`docs/`** | Documentation assets and architecture source files. |
@@ -59,6 +67,7 @@ If you prefer to clone the repository manually:
 
 ## 🛡 Features
 
+  * **Panel Choice:** Choose between different panel options (Waybar currently supported, sfwbar and xfce4-panel pending).
   * **Atomic Execution:** The script stops immediately if any step fails (`set -e`).
   * **Validation First:** Checks for internet connectivity, root privileges, and OS version before making changes.
   * **Detailed Logging:** Every action is logged to `logs/install_YYYY-MM-DD.log`.
