@@ -140,16 +140,27 @@ for attempt in {1..3}; do
     log_info "Cloning sfwbar (attempt $attempt/3)..."
     log_info "Executing: git clone --depth 1 $SFWBAR_REPO"
     
-    sudo -u "$CURRENT_USER" git clone --depth 1 "$SFWBAR_REPO" "$BUILD_DIR" 2>&1
+    # Capture output for logging
+    clone_output=$(sudo -u "$CURRENT_USER" git clone --depth 1 "$SFWBAR_REPO" "$BUILD_DIR" 2>&1)
     clone_exit_code=$?
+    
+    # Log output to file and terminal if there's any
+    if [[ -n "$clone_output" ]]; then
+        echo "$clone_output" >> "$LOG_FILE"
+        echo "$clone_output" >&2
+    fi
     
     if [[ $clone_exit_code -eq 0 ]]; then
         CLONE_SUCCESS=true
+        log_info "Clone successful on attempt $attempt"
         break
     else
         log_warn "Clone attempt $attempt failed with exit code: $clone_exit_code"
         # Clean up partial clone before retry
         sudo -u "$CURRENT_USER" rm -rf "$BUILD_DIR" 2>/dev/null || true
+        if [[ $attempt -lt 3 ]]; then
+            log_info "Retrying in 2 seconds..."
+        fi
         sleep 2
     fi
 done
@@ -177,16 +188,27 @@ cd "$BUILD_DIR"
 log_info "Running meson setup (output logged to $LOG_FILE)..."
 log_info "Executing: meson setup build --prefix=/usr/local -Dnetwork=enabled -Dbluez=disabled"
 
-# Disable ERR trap and errexit to capture exit code before diagnostics
+# Disable ERR trap, errexit, and pipefail to capture exit code before diagnostics
 trap - ERR
 set +e
-sudo -u "$CURRENT_USER" meson setup build \
+set +o pipefail
+
+meson_output=$(sudo -u "$CURRENT_USER" meson setup build \
     --prefix=/usr/local \
     -Dnetwork=enabled \
-    -Dbluez=disabled >> "$LOG_FILE" 2>&1
+    -Dbluez=disabled 2>&1)
 meson_exit_code=$?
+
+# Re-enable error handling
+set -o pipefail
 set -e
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
+
+# Log output to file and terminal
+if [[ -n "$meson_output" ]]; then
+    echo "$meson_output" >> "$LOG_FILE"
+    echo "$meson_output" >&2
+fi
 
 if [[ $meson_exit_code -ne 0 ]]; then
     show_build_diagnostics "$BUILD_DIR"
@@ -199,13 +221,24 @@ log_info "Compiling sfwbar (this may take 3-5 minutes)..."
 log_info "Compilation output logged to $LOG_FILE"
 log_info "Executing: ninja -C build"
 
-# Disable ERR trap and errexit to capture exit code before diagnostics
+# Disable ERR trap, errexit, and pipefail to capture exit code before diagnostics
 trap - ERR
 set +e
-sudo -u "$CURRENT_USER" ninja -C build >> "$LOG_FILE" 2>&1
+set +o pipefail
+
+ninja_output=$(sudo -u "$CURRENT_USER" ninja -C build 2>&1)
 ninja_exit_code=$?
+
+# Re-enable error handling
+set -o pipefail
 set -e
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
+
+# Log output to file and terminal
+if [[ -n "$ninja_output" ]]; then
+    echo "$ninja_output" >> "$LOG_FILE"
+    echo "$ninja_output" >&2
+fi
 
 if [[ $ninja_exit_code -ne 0 ]]; then
     show_build_diagnostics "$BUILD_DIR"
@@ -217,13 +250,24 @@ fi
 log_info "Installing sfwbar to /usr/local..."
 log_info "Executing: ninja -C build install"
 
-# Disable ERR trap and errexit to capture exit code before error handling
+# Disable ERR trap, errexit, and pipefail to capture exit code before error handling
 trap - ERR
 set +e
-ninja -C build install >> "$LOG_FILE" 2>&1
+set +o pipefail
+
+install_output=$(ninja -C build install 2>&1)
 install_exit_code=$?
+
+# Re-enable error handling
+set -o pipefail
 set -e
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
+
+# Log output to file and terminal
+if [[ -n "$install_output" ]]; then
+    echo "$install_output" >> "$LOG_FILE"
+    echo "$install_output" >&2
+fi
 
 if [[ $install_exit_code -ne 0 ]]; then
     log_error "Installation failed with exit code: $install_exit_code"
@@ -241,9 +285,8 @@ export PATH="/usr/local/bin:$PATH"
 log_info "Verifying sfwbar installation..."
 
 if command -v sfwbar >/dev/null 2>&1; then
-    SFWBAR_VERSION=$(sfwbar -v 2>&1 | head -n1 || echo "unknown")
     SFWBAR_PATH=$(command -v sfwbar)
-    log_success "sfwbar installed successfully: $SFWBAR_VERSION"
+    log_success "sfwbar installed successfully"
     log_info "Binary location: $SFWBAR_PATH"
 else
     log_error "sfwbar installation failed - binary not found in PATH"

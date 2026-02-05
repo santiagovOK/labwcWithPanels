@@ -5,8 +5,19 @@
 # ==============================================================================
 # 1. CONSTANTS & COLORS
 # ==============================================================================
-LOG_FILE="logs/install_$(date +%Y-%m-%d).log"
+# Detect project root directory for absolute paths
+_UTILS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+_PROJECT_ROOT="$(dirname "$_UTILS_DIR")"
+
+LOG_FILE="$_PROJECT_ROOT/logs/install_$(date +%Y-%m-%d).log"
 readonly LOG_FILE
+
+# Exit codes
+readonly EXIT_NOT_ROOT=60
+readonly EXIT_WRONG_DISTRO=61
+readonly EXIT_USER_ABORTED=62
+readonly EXIT_NO_INTERNET=80
+
 readonly R='\033[0;31m'   # Red (Error)
 readonly G='\033[0;32m'   # Green (Success)
 readonly Y='\033[0;33m'   # Yellow (Warning)
@@ -14,7 +25,7 @@ readonly B='\033[0;34m'   # Blue (Info)
 readonly C='\033[0;36m'   # Cyan (Step Title)
 readonly N='\033[0m'      # Reset
 
-mkdir -p logs
+mkdir -p "$_PROJECT_ROOT/logs"
 
 # ==============================================================================
 # 2. LOGGING FUNCTIONS
@@ -120,7 +131,8 @@ safe_install() {
                     ;;
                 a|A)
                     log_error "Installation aborted by user."
-                    exit 1
+                    export SCRIPT_SELF_REPORTED_ERROR=1
+                    exit $EXIT_USER_ABORTED
                     ;;
                 *)
                     continue
@@ -136,7 +148,8 @@ safe_install() {
 assert_root() {
     if [[ $EUID -ne 0 ]]; then
         log_error "Must run as root (sudo)."
-        exit 1
+        export SCRIPT_SELF_REPORTED_ERROR=1
+        exit $EXIT_NOT_ROOT
     fi
     log_success "Root privileges confirmed."
 }
@@ -154,11 +167,13 @@ assert_debian_trixie() {
             fi
         else
             log_error "Not Debian. Detected: $ID"
-            exit 1
+            export SCRIPT_SELF_REPORTED_ERROR=1
+            exit $EXIT_WRONG_DISTRO
         fi
     else
         log_error "Cannot determine OS."
-        exit 1
+        export SCRIPT_SELF_REPORTED_ERROR=1
+        exit $EXIT_WRONG_DISTRO
     fi
 }
 
@@ -168,7 +183,8 @@ check_internet() {
         log_success "Internet connection active."
     else
         log_error "No internet connection."
-        exit 1
+        export SCRIPT_SELF_REPORTED_ERROR=1
+        exit $EXIT_NO_INTERNET
     fi
 }
 
