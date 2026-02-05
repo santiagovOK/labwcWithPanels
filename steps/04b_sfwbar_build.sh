@@ -130,7 +130,16 @@ CLONE_SUCCESS=false
 for attempt in {1..3}; do
     log_info "Cloning sfwbar (attempt $attempt/3)..."
     log_info "Executing: git clone --depth 1 $SFWBAR_REPO"
-    if sudo -u "$CURRENT_USER" git clone --depth 1 "$SFWBAR_REPO" "$BUILD_DIR"; then
+    
+    # Disable ERR trap and errexit to allow retry logic
+    trap - ERR
+    set +e
+    sudo -u "$CURRENT_USER" git clone --depth 1 "$SFWBAR_REPO" "$BUILD_DIR"
+    clone_exit_code=$?
+    set -e
+    trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
+    
+    if [[ $clone_exit_code -eq 0 ]]; then
         CLONE_SUCCESS=true
         break
     else
@@ -157,10 +166,19 @@ cd "$BUILD_DIR"
 # Run meson as user with output capture
 log_info "Running meson setup (output logged to $LOG_FILE)..."
 log_info "Executing: meson setup build --prefix=/usr/local -Dnetwork=enabled -Dbluez=disabled"
-if ! sudo -u "$CURRENT_USER" meson setup build \
+
+# Disable ERR trap and errexit to capture exit code before diagnostics
+trap - ERR
+set +e
+sudo -u "$CURRENT_USER" meson setup build \
     --prefix=/usr/local \
     -Dnetwork=enabled \
-    -Dbluez=disabled 2>&1 | tee -a "$LOG_FILE"; then
+    -Dbluez=disabled 2>&1 | tee -a "$LOG_FILE"
+meson_exit_code=$?
+set -e
+trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
+
+if [[ $meson_exit_code -ne 0 ]]; then
     show_build_diagnostics "$BUILD_DIR"
     log_error "Meson configuration failed"
     export SCRIPT_SELF_REPORTED_ERROR=1
@@ -170,7 +188,16 @@ fi
 log_info "Compiling sfwbar (this may take 3-5 minutes)..."
 log_info "Compilation output logged to $LOG_FILE"
 log_info "Executing: ninja -C build"
-if ! sudo -u "$CURRENT_USER" ninja -C build 2>&1 | tee -a "$LOG_FILE"; then
+
+# Disable ERR trap and errexit to capture exit code before diagnostics
+trap - ERR
+set +e
+sudo -u "$CURRENT_USER" ninja -C build 2>&1 | tee -a "$LOG_FILE"
+ninja_exit_code=$?
+set -e
+trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
+
+if [[ $ninja_exit_code -ne 0 ]]; then
     show_build_diagnostics "$BUILD_DIR"
     log_error "Compilation failed"
     export SCRIPT_SELF_REPORTED_ERROR=1
@@ -179,7 +206,16 @@ fi
 
 log_info "Installing sfwbar to /usr/local..."
 log_info "Executing: ninja -C build install"
-if ! ninja -C build install 2>&1 | tee -a "$LOG_FILE"; then
+
+# Disable ERR trap and errexit to capture exit code before error handling
+trap - ERR
+set +e
+ninja -C build install 2>&1 | tee -a "$LOG_FILE"
+install_exit_code=$?
+set -e
+trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
+
+if [[ $install_exit_code -ne 0 ]]; then
     log_error "Installation failed"
     export SCRIPT_SELF_REPORTED_ERROR=1
     exit $EXIT_NINJA_INSTALL_FAILED
