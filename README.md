@@ -50,6 +50,36 @@ If you prefer to clone the repository manually:
 * **User:** A user with `sudo` privileges.
 * **Internet:** Active connection required.
 
+---
+
+## ⚠️ Post-Installation Configuration
+
+After running the installer, **configuration files** are deployed to `~/.config/` via symlinks. These configurations may need manual review and adjustment:
+
+### Critical Files to Review
+
+**Labwc Configuration:**
+- **`~/.config/labwc/autostart`** - Auto-start applications (panel, terminal, etc.)
+- **`~/.config/labwc/rc.xml`** - Keybindings, window rules, compositor settings
+- **`~/.config/labwc/environment`** - Environment variables
+- **`~/.config/labwc/menu.xml`** - Right-click menu items
+
+**Panel Configuration (depending on your choice):**
+- **Waybar**: `~/.config/waybar/config` and `~/.config/waybar/style.css`
+- **sfwbar**: `~/.config/sfwbar/sfwbar.config` and `~/.config/sfwbar/sfwbar.css`
+
+### Common Issues
+
+1. **Panel not starting:** Check `~/.config/labwc/autostart` for correct panel command
+2. **Wrong monitor/display:** Adjust output settings in `~/.config/labwc/rc.xml`
+3. **Keybindings not working:** Review bindings in `~/.config/labwc/rc.xml`
+4. **Panel appearance:** Modify CSS files in respective panel config directories
+5. **Display Manager/Greeter:** This installer does NOT include a display manager (LightDM, GDM, SDDM, etc.). You may need to configure one separately or start labwc manually from TTY.
+
+**Tip:** Configuration files are **symlinked** from this repository. You can either:
+- Edit symlinked files directly (changes tracked in git)
+- Break symlinks and copy files to customize independently
+
 -----
 
 ## 📂 Project Structure
