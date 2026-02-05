@@ -6,8 +6,8 @@ This is a Bash orchestration script to automate the installation of a minimal Wa
 
 | Panel | Status | Description |
 | :--- | :--- | :--- |
-| **Waybar** | ✅ **Current** | Highly customizable Wayland bar (default) |
-| **sfwbar** | 🔄 **Pending** | Simple Wayland bar with taskbar support |
+| **Waybar** | ✅ **Working** | Highly customizable Wayland bar (default) |
+| **sfwbar** | ✅ **Working** | Simple Wayland bar with taskbar support |
 | **xfce4-panel** | 🔄 **Pending** | Full-featured panel from XFCE desktop |
 
 ---
@@ -74,11 +74,11 @@ If you prefer to clone the repository manually:
   * **Idempotent-ish:** Checks if packages are already installed to speed up re-runs.
 
 
-## 🏗 Architecture
+## 🏗 Architecture (not updated right now)
 
 The installation process is driven by a central orchestrator (`install.sh`) that executes isolated, numbered steps. The system relies on a global error trap and strict validation logic.
 
-![img/architecture.mmd](img/architecture.png)
+![img/architecture.mmd](img/.png)
 
 ## 🌿 Branch Strategy
 
