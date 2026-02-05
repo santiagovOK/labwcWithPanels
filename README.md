@@ -46,7 +46,7 @@ If you prefer to clone the repository manually:
 
 ### Prerequisites
 
-* **OS:** Debian 13 "Trixie" (Testing/Testing-based)
+* **OS:** Debian 13 "Trixie" (Stable)
 * **User:** A user with `sudo` privileges.
 * **Internet:** Active connection required.
 
