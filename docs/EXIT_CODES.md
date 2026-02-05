@@ -49,7 +49,7 @@ This document catalogs all exit codes used across the project for debugging and 
 | 12 | `EXIT_WAYLAND_PACKAGE_FAILED` | Failed to install Wayland package |
 | 41 | `EXIT_BRAVE_INSTALL_FAILED` | Brave browser installation failed |
 
-### 04_panel_choice.sh
+### 03z_panel_choice.sh
 
 | Code | Constant | Description |
 |------|----------|-------------|
