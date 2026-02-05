@@ -14,8 +14,11 @@ echo "------------------------------------------------"
 
 # 1. CHECK BINARIES
 # We check if critical programs are reachable in the PATH.
+# Detect which panel was installed
+PANEL_CHOICE=$(cat /tmp/labwc_panel_choice 2>/dev/null || echo "waybar")
+
 REQUIRED_BINS=(
-    "labwc" "waybar" "foot" "fuzzel" "swaybg" "swaylock" 
+    "labwc" "$PANEL_CHOICE" "foot" "fuzzel" "swaybg" "swaylock" 
     "seatd" "pipewire" "wireplumber" "grim" "slurp" 
     "swappy" "wlr-randr" "pavucontrol" "nm-applet"
     "xdg-desktop-portal-wlr"
@@ -59,7 +62,7 @@ fi
 # 4. CHECK CONFIGURATION LINKS
 # Checks if your ~/.config files are actually symlinks (as intended by step 05).
 echo -e "\n[ Checking Config Links ]"
-CONFIGS=("labwc" "waybar" "foot")
+CONFIGS=("labwc" "$PANEL_CHOICE" "foot")
 for cfg in "${CONFIGS[@]}"; do
     TARGET="$HOME/.config/$cfg"
     if [ -L "$TARGET" ]; then

@@ -4,9 +4,12 @@
 # Updated to use global safe_install
 # TODO: Add NONINTERACTIVE mode support to skip user prompts (e.g., swap disable)
 
+# Exit codes for specific failures
+readonly EXIT_BASE_PACKAGE_FAILED=10
+
 LIB_PATH="lib/utils.sh"
 if [[ ! -f "$LIB_PATH" && -f "../$LIB_PATH" ]]; then cd ..; fi
-if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit 1; fi
+if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit $EXIT_BASE_PACKAGE_FAILED; fi
 # shellcheck source=../lib/utils.sh
 source "$LIB_PATH"
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM

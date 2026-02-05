@@ -1,0 +1,180 @@
+/* Color variables */
+@define-color lab_bg_color RGBA(0, 0, 0, 0.85);
+@define-color lab_active_color #bc4b4f;
+@define-color lab_hover_color RGBA(255, 255, 255, 0.1);
+@define-color lab_text_color #d1d1d1;
+@define-color lab_menu_bg_color #353535;
+
+/* Main window */
+window {
+  -GtkWidget-direction: bottom;
+  background-color: @lab_bg_color;
+}
+
+/* Labels */
+label {
+  font-size: 10px;
+  color: @lab_text_color;
+  text-shadow: none;
+}
+
+/* Buttons */
+button {
+  outline-style: none;
+  box-shadow: none;
+  background-image: none;
+  border-image: none;
+  border-radius: 0;
+  min-height: 20px;
+  min-width: 20px;
+  margin: 0px;
+  margin-right: 3px;
+  border: 0px;
+  background-color: RGBA(0, 0, 0, 0.0);
+  -GtkWidget-valign: center;
+}
+
+button image {
+  outline-style: none;
+  box-shadow: none;
+  background-image: none;
+  border-image: none;
+  border-radius: 0;
+  min-height: 20px;
+  min-width: 20px;
+  margin: 0px;
+  margin-right: 3px;
+  border: 0px;
+  background-color: RGBA(0, 0, 0, 0.0);
+  -GtkWidget-valign: center;
+}
+
+button:hover {
+  background-color: @lab_hover_color;
+}
+
+/* Taskbar groups */
+button#taskbar_group_normal {
+  border: 0px;
+  -GtkWidget-valign: center;
+}
+
+button#taskbar_group_normal:hover {
+  border: 0px;
+  -GtkWidget-valign: center;
+}
+
+button#taskbar_group_active {
+  border: 0px;
+  -GtkWidget-valign: center;
+  background-color: @lab_active_color;
+}
+
+button#taskbar_group_active:hover {
+  background-color: @lab_hover_color;
+}
+
+/* Pager (workspace switcher) - narrower boxes */
+button#pager {
+  min-width: 30px;
+  padding: 0 8px;
+}
+
+/* Menu items */
+#menu_item {
+  -GtkWidget-halign: start;
+  color: white;
+}
+
+#menu_item * {
+  -GtkWidget-halign: start;
+  color: white;
+}
+
+#menu_item image {
+  -GtkWidget-halign: start;
+  color: white;
+  min-width: 16px;
+  min-height: 16px;
+  padding-right: 2px;
+  margin-right: 7px;
+  margin-left: 3px;
+}
+
+#menu_item label {
+  -GtkWidget-halign: start;
+  color: white;
+}
+
+menu {
+  background-color: @lab_menu_bg_color;
+}
+
+menu arrow {
+  background: none;
+}
+
+/* Clock */
+label#clock {
+  color: @lab_text_color;
+  -GtkWidget-vexpand: true;
+  -GtkWidget-valign: center;
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+/* Hardware monitoring labels - Uncomment to use */
+/*
+label#cpu {
+  color: #3498db;
+  font-size: 10px;
+  margin-right: 10px;
+  padding: 2px 6px;
+  background-color: RGBA(52, 152, 219, 0.15);
+  border-radius: 3px;
+}
+
+label#memory {
+  color: #2ecc71;
+  font-size: 10px;
+  margin-right: 10px;
+  padding: 2px 6px;
+  background-color: RGBA(46, 204, 113, 0.15);
+  border-radius: 3px;
+}
+
+label#temp {
+  color: #e74c3c;
+  font-size: 10px;
+  margin-right: 10px;
+  padding: 2px 6px;
+  background-color: RGBA(231, 76, 60, 0.15);
+  border-radius: 3px;
+}
+
+label#gpu {
+  color: #f39c12;
+  font-size: 10px;
+  margin-right: 10px;
+  padding: 2px 6px;
+  background-color: RGBA(243, 156, 18, 0.15);
+  border-radius: 3px;
+}
+
+label#crypto {
+  color: #f7931a;
+  font-weight: bold;
+  font-size: 11px;
+  margin-right: 10px;
+  padding: 2px 8px;
+  background-color: RGBA(247, 147, 26, 0.15);
+  border-radius: 3px;
+}
+
+label#mpris {
+  color: #9b59b6;
+  font-size: 10px;
+  font-style: italic;
+  margin-right: 10px;
+}
+*/

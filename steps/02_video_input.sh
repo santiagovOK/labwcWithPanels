@@ -2,9 +2,12 @@
 # steps/02_video_input.sh
 # Updated to use global safe_install
 
+# Exit codes for specific failures
+readonly EXIT_VIDEO_PACKAGE_FAILED=11
+
 LIB_PATH="lib/utils.sh"
 if [[ ! -f "$LIB_PATH" && -f "../$LIB_PATH" ]]; then cd ..; fi
-if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit 1; fi
+if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit $EXIT_VIDEO_PACKAGE_FAILED; fi
 # shellcheck source=../lib/utils.sh
 source "$LIB_PATH"
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM

@@ -4,12 +4,17 @@
 # Update: Interactive prompts for Dotfiles and .bashrc separately.
 # TODO: Add NONINTERACTIVE mode support to skip user prompts (e.g., deploy configs, .bashrc)
 
+# Exit codes for specific failures
+readonly EXIT_CONFIG_DIR_FAILED=71
+readonly EXIT_CONFIG_SYMLINK_FAILED=72
+readonly EXIT_USER_DETECTION_FAILED=11
+
 # ==============================================================================
 # BOOTSTRAP
 # ==============================================================================
 LIB_PATH="lib/utils.sh"
 if [[ ! -f "$LIB_PATH" && -f "../$LIB_PATH" ]]; then cd ..; fi
-if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit 1; fi
+if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit $EXIT_CONFIG_DIR_FAILED; fi
 # shellcheck source=../lib/utils.sh
 source "$LIB_PATH"
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
@@ -23,7 +28,8 @@ log_step "Step 05: Applying User Configurations"
 CURRENT_USER=$(logname 2>/dev/null || echo "$SUDO_USER")
 if [[ -z "$CURRENT_USER" || "$CURRENT_USER" == "root" ]]; then
     log_error "Cannot determine target non-root user. Do not run as pure root."
-    exit 1
+    export SCRIPT_SELF_REPORTED_ERROR=1
+    exit $EXIT_USER_DETECTION_FAILED
 fi
 
 USER_HOME=$(eval echo "~$CURRENT_USER")
@@ -65,6 +71,16 @@ install_config() {
     
     if [ $ret -eq 0 ]; then
         chown -h "$CURRENT_USER":"$CURRENT_USER" "$full_dest_path"
+        
+        # Special handling for labwc autostart: replace panel placeholder
+        if [[ "$dest_path" == "labwc/autostart" ]]; then
+            PANEL_CHOICE=$(cat /tmp/labwc_panel_choice 2>/dev/null || echo "waybar")
+            log_info "Configuring autostart for panel: $PANEL_CHOICE"
+            
+            # Replace placeholder with actual panel command
+            sed -i "s|##PANEL_AUTOSTART##|${PANEL_CHOICE} \&|g" "$full_dest_path"
+        fi
+        
         log_success "Linked: $dest_path"
     else
         log_error "Failed to link $dest_path (Permission denied?)"
@@ -76,7 +92,11 @@ install_config() {
 # ==============================================================================
 log_info "Phase A: Deploying Dotfiles..."
 
-echo -e "${Y}Do you want to overwrite ~/.config with project dotfiles (labwc, waybar)?${N}"
+# Determine selected panel
+PANEL_CHOICE=$(cat /tmp/labwc_panel_choice 2>/dev/null || echo "waybar")
+log_info "Detected panel choice: $PANEL_CHOICE"
+
+echo -e "${Y}Do you want to overwrite ~/.config with project dotfiles (labwc, $PANEL_CHOICE, foot)?${N}"
 response=$(safe_prompt "Deploy Configs? [y/N]" "N")
 
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
@@ -85,13 +105,13 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     if [[ ! -d "$PROJECT_CONFIG_DIR" ]]; then
         log_warn "No 'config' directory found in project root."
         log_info "Creating empty structure for future use..."
-        mkdir -p config/{labwc,waybar,foot}
+        mkdir -p config/{labwc,waybar,sfwbar,foot}
         # We don't exit, just warn
     fi
 
     # Attempt to link modules
     install_config "labwc" "labwc"
-    install_config "waybar" "waybar"
+    install_config "$PANEL_CHOICE" "$PANEL_CHOICE"
     install_config "foot" "foot"
 
     # Fix permissions recursively on .config
