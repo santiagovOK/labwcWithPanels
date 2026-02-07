@@ -123,6 +123,27 @@ label#clock {
   margin-right: 8px;
 }
 
+/* Hardware monitoring widgets */
+chart#cpu_chart {
+  color: #3498db;
+  min-width: 30px;
+  min-height: 20px;
+  margin-right: 5px;
+  padding: 1px 4px;
+  background-color: RGBA(52, 152, 219, 0.15);
+  border-radius: 3px;
+}
+
+chart#memory_chart {
+  color: #2ecc71;
+  min-width: 30px;
+  min-height: 20px;
+  margin-right: 5px;
+  padding: 1px 4px;
+  background-color: RGBA(46, 204, 113, 0.15);
+  border-radius: 3px;
+}
+
 /* Hardware monitoring labels - Uncomment to use */
 /*
 label#cpu {
