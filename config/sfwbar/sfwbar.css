@@ -76,9 +76,14 @@ button#taskbar_group_active:hover {
 
 /* Pager (workspace switcher) - narrower boxes */
 button#pager {
-  min-width: 30px;
-  padding: 0 8px;
+  min-width: 20px;
+  padding: 0 4px;
 }
+
+button#pager_focused {
+  background-color: #64727D;
+  box-shadow: inset 0 -3px #ffffff;
+}   
 
 /* Menu items */
 #menu_item {
