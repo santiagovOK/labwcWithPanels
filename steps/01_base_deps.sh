@@ -33,6 +33,7 @@ PACKAGES=(
     "locales"
     "libfuse2t64"
     "mate-polkit"
+    "neovim"
 )
 
 log_info "Installing Base Dependencies..."
