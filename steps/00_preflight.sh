@@ -14,12 +14,6 @@ if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit 1; fi
 source "$LIB_PATH"
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
 
-# Exit codes for specific failures
-readonly EXIT_NOT_ROOT=60
-readonly EXIT_WRONG_DISTRO=61
-readonly EXIT_NO_INTERNET=80
-readonly EXIT_USER_ABORTED=62
-
 # ==============================================================================
 # FUNCIONES AUXILIARES
 # ==============================================================================
