@@ -1,5 +1,9 @@
 # Debian 13 (Trixie) Minimal Setup: Labwc + Panels
 
+[![ShellCheck](https://github.com/santiagovOK/labwcWithPanels/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/santiagovOK/labwcWithPanels/actions/workflows/shellcheck.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Debian: 13](https://img.shields.io/badge/Debian-13%20(Trixie)-A81D33?logo=debian&logoColor=white)](https://www.debian.org/)
+
 This is a Bash orchestration script to automate the installation of a minimal Wayland environment using **Labwc** (Compositor) with configurable panel options on Debian 13.
 
 ## Panel Options
