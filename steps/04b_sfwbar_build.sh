@@ -6,7 +6,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
 
 # Exit codes for specific failures
 readonly EXIT_DEPENDENCY_MISSING=10

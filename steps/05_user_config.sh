@@ -6,7 +6,6 @@
 
 # Exit codes for specific failures
 readonly EXIT_CONFIG_DIR_FAILED=71
-readonly EXIT_CONFIG_SYMLINK_FAILED=72
 readonly EXIT_USER_DETECTION_FAILED=11
 
 # ==============================================================================

@@ -6,7 +6,6 @@
 
 # Exit codes for specific failures
 readonly EXIT_WAYLAND_PACKAGE_FAILED=12
-readonly EXIT_BRAVE_INSTALL_FAILED=41
 
 # ==============================================================================
 # BOOTSTRAP

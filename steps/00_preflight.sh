@@ -4,21 +4,21 @@
 # Update: Adds interactive error handling (Retry/Skip/Abort)
 # TODO: Add NONINTERACTIVE mode support to skip user prompts (e.g., retry/skip/abort)
 
-# Exit codes for specific failures
-readonly EXIT_NOT_ROOT=60
-readonly EXIT_WRONG_DISTRO=61
-readonly EXIT_NO_INTERNET=80
-readonly EXIT_USER_ABORT=62
-
 # ==============================================================================
 # BOOTSTRAP
 # ==============================================================================
 LIB_PATH="lib/utils.sh"
 if [[ ! -f "$LIB_PATH" && -f "../$LIB_PATH" ]]; then cd ..; fi
-if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit $EXIT_WRONG_DISTRO; fi
+if [[ ! -f "$LIB_PATH" ]]; then echo "CRITICAL: Lib not found"; exit 1; fi
 # shellcheck source=../lib/utils.sh
 source "$LIB_PATH"
 trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR INT TERM
+
+# Exit codes for specific failures
+readonly EXIT_NOT_ROOT=60
+readonly EXIT_WRONG_DISTRO=61
+readonly EXIT_NO_INTERNET=80
+readonly EXIT_USER_ABORTED=62
 
 # ==============================================================================
 # FUNCIONES AUXILIARES
@@ -72,7 +72,7 @@ safe_install() {
                 a|A)
                     log_error "Aborting installation via user request."
                     export SCRIPT_SELF_REPORTED_ERROR=1
-                    exit $EXIT_USER_ABORT
+                    exit $EXIT_USER_ABORTED
                     ;;
                 *)
                     log_warn "Invalid option. Retrying..."
